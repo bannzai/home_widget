@@ -75,7 +75,9 @@ public class SwiftHomeWidgetPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
         let data = myArgs["data"]
       {
         let preferences = UserDefaults.init(suiteName: SwiftHomeWidgetPlugin.groupId)
-        if data != nil {
+        // Dart's null arrives as NSNull, and UserDefaults on iOS 27.1 rejects NSNull with
+        // NSInvalidArgumentException, so NSNull is treated as a removal like nil
+        if let data = data, !(data is NSNull) {
           if let binaryData = data as? FlutterStandardTypedData {
             preferences?.setValue(Data(binaryData.data), forKey: id)
           } else {
